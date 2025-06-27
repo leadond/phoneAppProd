@@ -1,29 +1,68 @@
 
 import React, { useState } from 'react';
-import { Search, Filter, Download, Phone } from 'lucide-react';
+import { Search, Filter, Download, Phone, AlertTriangle } from 'lucide-react';
 
 export const PhoneNumbersTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [showDuplicateExtensions, setShowDuplicateExtensions] = useState(false);
 
-  // Mock data for phone numbers
+  // Mock data for phone numbers with extensions and potential duplicates
   const mockNumbers = [
-    { id: '1', number: '346-720-0001', status: 'assigned', system: 'Skype', carrier: 'AT&T', assignedTo: 'John Doe', notes: 'Primary line' },
-    { id: '2', number: '346-720-0002', status: 'available', system: 'TEAMS', carrier: 'LUMEN', assignedTo: null, notes: '' },
-    { id: '3', number: '346-720-0003', status: 'assigned', system: 'Genesys', carrier: 'AT&T', assignedTo: 'Jane Smith', notes: 'Support desk' },
-    { id: '4', number: '346-725-0001', status: 'reserved', system: 'Skype', carrier: 'LUMEN', assignedTo: null, notes: 'Reserved for expansion' },
-    { id: '5', number: '346-725-0002', status: 'assigned', system: 'TEAMS', carrier: 'AT&T', assignedTo: 'Mike Johnson', notes: 'Sales team' },
-    { id: '6', number: '346-834-0001', status: 'available', system: 'Genesys', carrier: 'LUMEN', assignedTo: null, notes: '' },
+    { id: '1', number: '346-720-0001', status: 'assigned', system: 'Skype', carrier: 'AT&T', assignedTo: 'John Doe', notes: 'Primary line', extension: '00001' },
+    { id: '2', number: '346-720-0002', status: 'available', system: 'TEAMS', carrier: 'LUMEN', assignedTo: null, notes: '', extension: '00002' },
+    { id: '3', number: '346-720-0003', status: 'assigned', system: 'Genesys', carrier: 'AT&T', assignedTo: 'Jane Smith', notes: 'Support desk', extension: '00003' },
+    { id: '4', number: '346-725-0001', status: 'reserved', system: 'Skype', carrier: 'LUMEN', assignedTo: null, notes: 'Reserved for expansion', extension: '00001' },
+    { id: '5', number: '346-725-0002', status: 'assigned', system: 'TEAMS', carrier: 'AT&T', assignedTo: 'Mike Johnson', notes: 'Sales team', extension: '00002' },
+    { id: '6', number: '346-834-0001', status: 'available', system: 'Genesys', carrier: 'LUMEN', assignedTo: null, notes: '', extension: '00001' },
+    { id: '7', number: '346-834-0003', status: 'assigned', system: 'Skype', carrier: 'AT&T', assignedTo: 'Jane Smith', notes: 'Duplicate ext override', extension: '00003' },
   ];
 
+  // Helper function to normalize phone number for search (remove dashes)
+  const normalizePhoneNumber = (number) => {
+    return number.replace(/-/g, '');
+  };
+
+  // Helper function to get extension from phone number
+  const getExtension = (number) => {
+    return number.slice(-5).replace('-', '');
+  };
+
+  // Find duplicate extensions
+  const findDuplicateExtensions = () => {
+    const extensionMap = {};
+    mockNumbers.forEach(number => {
+      const ext = number.extension;
+      if (!extensionMap[ext]) {
+        extensionMap[ext] = [];
+      }
+      extensionMap[ext].push(number);
+    });
+    
+    return Object.entries(extensionMap)
+      .filter(([ext, numbers]) => numbers.length > 1)
+      .reduce((acc, [ext, numbers]) => {
+        acc[ext] = numbers;
+        return acc;
+      }, {});
+  };
+
+  const duplicateExtensions = findDuplicateExtensions();
+
   const filteredNumbers = mockNumbers.filter(number => {
-    const matchesSearch = number.number.includes(searchTerm) || 
-                         (number.assignedTo && number.assignedTo.toLowerCase().includes(searchTerm.toLowerCase()));
+    const normalizedNumber = normalizePhoneNumber(number.number);
+    const normalizedSearch = normalizePhoneNumber(searchTerm);
+    
+    const matchesSearch = 
+      normalizedNumber.includes(normalizedSearch) || 
+      number.extension.includes(searchTerm) ||
+      (number.assignedTo && number.assignedTo.toLowerCase().includes(searchTerm.toLowerCase()));
+    
     const matchesStatus = statusFilter === 'all' || number.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status) => {
     const colors = {
       assigned: 'bg-green-100 text-green-800',
       available: 'bg-blue-100 text-blue-800',
@@ -34,6 +73,22 @@ export const PhoneNumbersTable = () => {
     return `px-2 py-1 text-xs font-medium rounded-full ${colors[status] || 'bg-gray-100 text-gray-800'}`;
   };
 
+  const isDuplicateExtension = (extension) => {
+    return duplicateExtensions[extension] && duplicateExtensions[extension].length > 1;
+  };
+
+  const getDuplicateWarning = (number) => {
+    const duplicates = duplicateExtensions[number.extension];
+    if (!duplicates || duplicates.length <= 1) return null;
+    
+    const otherNumbers = duplicates.filter(n => n.id !== number.id);
+    const hasConflict = otherNumbers.some(n => 
+      n.assignedTo !== number.assignedTo || n.system !== number.system
+    );
+    
+    return hasConflict;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -41,10 +96,23 @@ export const PhoneNumbersTable = () => {
           <h1 className="text-3xl font-bold text-gray-900">Phone Numbers</h1>
           <p className="text-gray-500 mt-1">Manage and track phone number assignments</p>
         </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2">
-          <Download className="w-4 h-4" />
-          <span>Export CSV</span>
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowDuplicateExtensions(!showDuplicateExtensions)}
+            className={`px-4 py-2 rounded-md transition-colors flex items-center space-x-2 ${
+              showDuplicateExtensions 
+                ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4" />
+            <span>Duplicate Extensions ({Object.keys(duplicateExtensions).length})</span>
+          </button>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2">
+            <Download className="w-4 h-4" />
+            <span>Export CSV</span>
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -55,12 +123,15 @@ export const PhoneNumbersTable = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search numbers or assignees..."
+                placeholder="Search by number (with/without dashes), extension, or assignee..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Tip: Search "00001" for extension, "3467200001" without dashes, or "346-720-0001" with dashes
+            </p>
           </div>
           
           <div className="flex gap-4">
@@ -84,6 +155,30 @@ export const PhoneNumbersTable = () => {
         </div>
       </div>
 
+      {/* Duplicate Extensions Alert */}
+      {showDuplicateExtensions && Object.keys(duplicateExtensions).length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-yellow-800 mb-2">Duplicate Extensions Found</h3>
+          <div className="space-y-2">
+            {Object.entries(duplicateExtensions).map(([ext, numbers]) => (
+              <div key={ext} className="text-sm">
+                <span className="font-medium text-yellow-800">Extension {ext}:</span>
+                <div className="ml-4">
+                  {numbers.map(number => (
+                    <div key={number.id} className="flex justify-between items-center py-1">
+                      <span>{number.number} - {number.assignedTo || 'Unassigned'} ({number.system})</span>
+                      {getDuplicateWarning(number) && (
+                        <span className="text-red-600 text-xs">⚠ Override Active</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -92,6 +187,9 @@ export const PhoneNumbersTable = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Phone Number
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Extension
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -120,7 +218,17 @@ export const PhoneNumbersTable = () => {
                     <div className="flex items-center">
                       <Phone className="w-4 h-4 text-gray-400 mr-2" />
                       <span className="font-medium text-gray-900">{number.number}</span>
+                      {isDuplicateExtension(number.extension) && (
+                        <AlertTriangle className="w-4 h-4 text-yellow-500 ml-2" title="Duplicate extension" />
+                      )}
                     </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`font-mono text-sm ${
+                      isDuplicateExtension(number.extension) ? 'text-yellow-700 font-semibold' : 'text-gray-900'
+                    }`}>
+                      {number.extension}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={getStatusBadge(number.status)}>
