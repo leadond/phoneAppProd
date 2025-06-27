@@ -2,13 +2,24 @@
 import React, { useState } from 'react';
 import { Search, Filter, Download, Phone, AlertTriangle } from 'lucide-react';
 
+interface PhoneNumber {
+  id: string;
+  number: string;
+  status: string;
+  system: string;
+  carrier: string;
+  assignedTo: string | null;
+  notes: string;
+  extension: string;
+}
+
 export const PhoneNumbersTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showDuplicateExtensions, setShowDuplicateExtensions] = useState(false);
 
   // Mock data for phone numbers with extensions and potential duplicates
-  const mockNumbers = [
+  const mockNumbers: PhoneNumber[] = [
     { id: '1', number: '346-720-0001', status: 'assigned', system: 'Skype', carrier: 'AT&T', assignedTo: 'John Doe', notes: 'Primary line', extension: '00001' },
     { id: '2', number: '346-720-0002', status: 'available', system: 'TEAMS', carrier: 'LUMEN', assignedTo: null, notes: '', extension: '00002' },
     { id: '3', number: '346-720-0003', status: 'assigned', system: 'Genesys', carrier: 'AT&T', assignedTo: 'Jane Smith', notes: 'Support desk', extension: '00003' },
@@ -19,18 +30,13 @@ export const PhoneNumbersTable = () => {
   ];
 
   // Helper function to normalize phone number for search (remove dashes)
-  const normalizePhoneNumber = (number) => {
+  const normalizePhoneNumber = (number: string) => {
     return number.replace(/-/g, '');
   };
 
-  // Helper function to get extension from phone number
-  const getExtension = (number) => {
-    return number.slice(-5).replace('-', '');
-  };
-
   // Find duplicate extensions
-  const findDuplicateExtensions = () => {
-    const extensionMap = {};
+  const findDuplicateExtensions = (): Record<string, PhoneNumber[]> => {
+    const extensionMap: Record<string, PhoneNumber[]> = {};
     mockNumbers.forEach(number => {
       const ext = number.extension;
       if (!extensionMap[ext]) {
@@ -44,7 +50,7 @@ export const PhoneNumbersTable = () => {
       .reduce((acc, [ext, numbers]) => {
         acc[ext] = numbers;
         return acc;
-      }, {});
+      }, {} as Record<string, PhoneNumber[]>);
   };
 
   const duplicateExtensions = findDuplicateExtensions();
@@ -62,8 +68,8 @@ export const PhoneNumbersTable = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusBadge = (status) => {
-    const colors = {
+  const getStatusBadge = (status: string) => {
+    const colors: Record<string, string> = {
       assigned: 'bg-green-100 text-green-800',
       available: 'bg-blue-100 text-blue-800',
       reserved: 'bg-yellow-100 text-yellow-800',
@@ -73,11 +79,11 @@ export const PhoneNumbersTable = () => {
     return `px-2 py-1 text-xs font-medium rounded-full ${colors[status] || 'bg-gray-100 text-gray-800'}`;
   };
 
-  const isDuplicateExtension = (extension) => {
+  const isDuplicateExtension = (extension: string) => {
     return duplicateExtensions[extension] && duplicateExtensions[extension].length > 1;
   };
 
-  const getDuplicateWarning = (number) => {
+  const getDuplicateWarning = (number: PhoneNumber) => {
     const duplicates = duplicateExtensions[number.extension];
     if (!duplicates || duplicates.length <= 1) return null;
     
@@ -219,7 +225,7 @@ export const PhoneNumbersTable = () => {
                       <Phone className="w-4 h-4 text-gray-400 mr-2" />
                       <span className="font-medium text-gray-900">{number.number}</span>
                       {isDuplicateExtension(number.extension) && (
-                        <AlertTriangle className="w-4 h-4 text-yellow-500 ml-2" title="Duplicate extension" />
+                        <AlertTriangle className="w-4 h-4 text-yellow-500 ml-2" />
                       )}
                     </div>
                   </td>
