@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Filter, Download, Phone, AlertTriangle } from 'lucide-react';
 
@@ -34,15 +33,21 @@ export const PhoneNumbersTable = () => {
     return number.replace(/-/g, '');
   };
 
-  // Find duplicate extensions
+  // Helper function to get last 5 digits from phone number
+  const getLastFiveDigits = (number: string) => {
+    const normalized = normalizePhoneNumber(number);
+    return normalized.slice(-5);
+  };
+
+  // Find duplicate extensions based on last 5 digits of phone number
   const findDuplicateExtensions = (): Record<string, PhoneNumber[]> => {
     const extensionMap: Record<string, PhoneNumber[]> = {};
     mockNumbers.forEach(number => {
-      const ext = number.extension;
-      if (!extensionMap[ext]) {
-        extensionMap[ext] = [];
+      const lastFive = getLastFiveDigits(number.number);
+      if (!extensionMap[lastFive]) {
+        extensionMap[lastFive] = [];
       }
-      extensionMap[ext].push(number);
+      extensionMap[lastFive].push(number);
     });
     
     return Object.entries(extensionMap)
@@ -79,12 +84,14 @@ export const PhoneNumbersTable = () => {
     return `px-2 py-1 text-xs font-medium rounded-full ${colors[status] || 'bg-gray-100 text-gray-800'}`;
   };
 
-  const isDuplicateExtension = (extension: string) => {
-    return duplicateExtensions[extension] && duplicateExtensions[extension].length > 1;
+  const isDuplicateExtension = (number: PhoneNumber) => {
+    const lastFive = getLastFiveDigits(number.number);
+    return duplicateExtensions[lastFive] && duplicateExtensions[lastFive].length > 1;
   };
 
   const getDuplicateWarning = (number: PhoneNumber) => {
-    const duplicates = duplicateExtensions[number.extension];
+    const lastFive = getLastFiveDigits(number.number);
+    const duplicates = duplicateExtensions[lastFive];
     if (!duplicates || duplicates.length <= 1) return null;
     
     const otherNumbers = duplicates.filter(n => n.id !== number.id);
@@ -168,7 +175,7 @@ export const PhoneNumbersTable = () => {
           <div className="space-y-2">
             {Object.entries(duplicateExtensions).map(([ext, numbers]) => (
               <div key={ext} className="text-sm">
-                <span className="font-medium text-yellow-800">Extension {ext}:</span>
+                <span className="font-medium text-yellow-800">Last 5 digits {ext}:</span>
                 <div className="ml-4">
                   {numbers.map(number => (
                     <div key={number.id} className="flex justify-between items-center py-1">
@@ -224,14 +231,14 @@ export const PhoneNumbersTable = () => {
                     <div className="flex items-center">
                       <Phone className="w-4 h-4 text-gray-400 mr-2" />
                       <span className="font-medium text-gray-900">{number.number}</span>
-                      {isDuplicateExtension(number.extension) && (
+                      {isDuplicateExtension(number) && (
                         <AlertTriangle className="w-4 h-4 text-yellow-500 ml-2" />
                       )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`font-mono text-sm ${
-                      isDuplicateExtension(number.extension) ? 'text-yellow-700 font-semibold' : 'text-gray-900'
+                      isDuplicateExtension(number) ? 'text-yellow-700 font-semibold' : 'text-gray-900'
                     }`}>
                       {number.extension}
                     </span>
