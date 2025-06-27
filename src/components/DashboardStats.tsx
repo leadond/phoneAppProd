@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Phone, Users, AlertCircle, CheckCircle } from 'lucide-react';
+import { Phone, Users, AlertCircle, CheckCircle, Upload } from 'lucide-react';
 
 export const DashboardStats = () => {
   const stats = [
