@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <General>
+    <SIPDomains>contoso.com,fabrikam.com</SIPDomains>
+    <LyncPools>pool1.contoso.com,pool2.contoso.com</LyncPools>
+    <DialInFQDNs>dialin.contoso.com</DialInFQDNs>
+    <MeetFQDNs>meet.contoso.com</MeetFQDNs>
+    <FrontEndList>fe1.contoso.com,fe2.contoso.com,fe3.contoso.com</FrontEndList>
+    <ExchangeServerList>exchange1.contoso.com,exchange2.contoso.com</ExchangeServerList>
+    <DNSServers>8.8.8.8,8.8.4.4,1.1.1.1</DNSServers>
+    <AccessEdge>access.contoso.com</AccessEdge>
+    <WebConfEdge>webconf.contoso.com</WebConfEdge>
+    <AVEdge>av.contoso.com</AVEdge>
+    <ProxyFQDN>proxy.contoso.com</ProxyFQDN>
+    <SIPPort>5061</SIPPort>
+    <WebConfPort>443</WebConfPort>
+    <AVPort>443</AVPort>
+  </General>
+</configuration>

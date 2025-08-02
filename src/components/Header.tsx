@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 text-gray-700">
             <User className="w-4 h-4" />
-            <span className="text-sm">{user?.email || 'admin@company.com'}</span>
+            <span className="text-sm">{user?.email || 'admin@mdanderson.org'}</span>
           </div>
           
           <button

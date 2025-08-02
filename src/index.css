@@ -1,3 +1,4 @@
+@import './styles/microsoft-theme.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -99,5 +100,49 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--ms-font-family);
+    background: linear-gradient(180deg, #f3f2f1 0%, #faf9f8 100%);
+    min-height: 100vh;
+  }
+
+  /* Microsoft Fluent Design Background */
+  .main-content {
+    background: linear-gradient(135deg,
+      rgba(243, 242, 241, 0.8) 0%,
+      rgba(250, 249, 248, 0.9) 50%,
+      rgba(237, 235, 233, 0.8) 100%);
+    min-height: 100vh;
+  }
+
+  /* Enhanced Card Visibility */
+  .card {
+    background: white;
+    border: 1px solid #e1dfdd;
+    box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .card:hover {
+    box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132), 0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
+    transform: translateY(-1px);
+    border-color: #d2d0ce;
+  }
+
+  /* Microsoft-style Tab Enhancement */
+  .tabs-list {
+    background: linear-gradient(135deg, #faf9f8 0%, white 100%);
+    border: 1px solid #e1dfdd;
+    box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
+  }
+
+  .tabs-trigger {
+    transition: all 0.15s ease-in-out;
+  }
+
+  .tabs-trigger[data-state="active"] {
+    background: linear-gradient(135deg, #deecf9 0%, white 100%);
+    border-color: #0078d4;
+    color: #0078d4;
+    box-shadow: 0 1.6px 3.6px 0 rgba(0, 120, 212, 0.2);
   }
 }

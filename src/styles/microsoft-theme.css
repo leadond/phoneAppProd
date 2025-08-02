@@ -1,0 +1,566 @@
+/* Microsoft Fluent Design System Variables */
+:root {
+  /* Microsoft Color Palette */
+  --ms-blue-primary: #0078d4;
+  --ms-blue-secondary: #106ebe;
+  --ms-blue-tertiary: #005a9e;
+  --ms-blue-light: #deecf9;
+  --ms-blue-lighter: #f3f9fd;
+  
+  --ms-gray-10: #faf9f8;
+  --ms-gray-20: #f3f2f1;
+  --ms-gray-30: #edebe9;
+  --ms-gray-40: #e1dfdd;
+  --ms-gray-50: #d2d0ce;
+  --ms-gray-60: #c8c6c4;
+  --ms-gray-70: #a19f9d;
+  --ms-gray-80: #797775;
+  --ms-gray-90: #605e5c;
+  --ms-gray-100: #484644;
+  --ms-gray-110: #323130;
+  --ms-gray-120: #201f1e;
+  --ms-gray-130: #16130f;
+  --ms-gray-140: #11100f;
+  --ms-gray-150: #0b0a0a;
+  --ms-gray-160: #000000;
+
+  --ms-green: #107c10;
+  --ms-green-light: #dff6dd;
+  --ms-red: #d13438;
+  --ms-red-light: #fde7e9;
+  --ms-orange: #ff8c00;
+  --ms-orange-light: #fff4ce;
+  --ms-purple: #5c2d91;
+  --ms-purple-light: #f3f0f7;
+
+  /* Typography */
+  --ms-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+  --ms-font-size-10: 10px;
+  --ms-font-size-12: 12px;
+  --ms-font-size-14: 14px;
+  --ms-font-size-16: 16px;
+  --ms-font-size-18: 18px;
+  --ms-font-size-20: 20px;
+  --ms-font-size-24: 24px;
+  --ms-font-size-28: 28px;
+  --ms-font-size-32: 32px;
+  --ms-font-size-40: 40px;
+
+  /* Spacing */
+  --ms-spacing-xs: 4px;
+  --ms-spacing-s: 8px;
+  --ms-spacing-m: 12px;
+  --ms-spacing-l: 16px;
+  --ms-spacing-xl: 20px;
+  --ms-spacing-xxl: 24px;
+  --ms-spacing-xxxl: 32px;
+
+  /* Border Radius */
+  --ms-border-radius-small: 2px;
+  --ms-border-radius-medium: 4px;
+  --ms-border-radius-large: 6px;
+
+  /* Shadows */
+  --ms-shadow-depth-4: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
+  --ms-shadow-depth-8: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
+  --ms-shadow-depth-16: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132), 0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
+  --ms-shadow-depth-64: 0 25.6px 57.6px 0 rgba(0, 0, 0, 0.22), 0 4.8px 14.4px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* Microsoft Button Styles */
+.ms-button {
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-14);
+  font-weight: 600;
+  border-radius: var(--ms-border-radius-medium);
+  border: 1px solid transparent;
+  padding: var(--ms-spacing-s) var(--ms-spacing-l);
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ms-spacing-s);
+  min-height: 32px;
+}
+
+.ms-button-primary {
+  background-color: var(--ms-blue-primary);
+  color: white;
+  border-color: var(--ms-blue-primary);
+}
+
+.ms-button-primary:hover {
+  background-color: var(--ms-blue-secondary);
+  border-color: var(--ms-blue-secondary);
+}
+
+.ms-button-primary:active {
+  background-color: var(--ms-blue-tertiary);
+  border-color: var(--ms-blue-tertiary);
+}
+
+.ms-button-secondary {
+  background-color: white;
+  color: var(--ms-gray-110);
+  border-color: var(--ms-gray-60);
+}
+
+.ms-button-secondary:hover {
+  background-color: var(--ms-gray-20);
+  border-color: var(--ms-gray-70);
+}
+
+.ms-button-secondary:active {
+  background-color: var(--ms-gray-30);
+  border-color: var(--ms-gray-80);
+}
+
+/* Microsoft Card Styles */
+.ms-card {
+  background-color: white;
+  border: 1px solid var(--ms-gray-40);
+  border-radius: var(--ms-border-radius-large);
+  box-shadow: var(--ms-shadow-depth-8);
+  transition: all 0.2s ease-in-out;
+}
+
+.ms-card:hover {
+  box-shadow: var(--ms-shadow-depth-16);
+  border-color: var(--ms-gray-50);
+  transform: translateY(-1px);
+}
+
+.ms-card-header {
+  padding: var(--ms-spacing-l) var(--ms-spacing-xl);
+  border-bottom: 1px solid var(--ms-gray-30);
+}
+
+.ms-card-content {
+  padding: var(--ms-spacing-xl);
+}
+
+/* Microsoft Input Styles */
+.ms-input {
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-14);
+  border: 1px solid var(--ms-gray-60);
+  border-radius: var(--ms-border-radius-medium);
+  padding: var(--ms-spacing-s) var(--ms-spacing-m);
+  background-color: white;
+  transition: border-color 0.1s ease-in-out;
+  min-height: 32px;
+}
+
+.ms-input:focus {
+  outline: none;
+  border-color: var(--ms-blue-primary);
+  box-shadow: 0 0 0 1px var(--ms-blue-primary);
+}
+
+.ms-input:hover {
+  border-color: var(--ms-gray-80);
+}
+
+/* Microsoft Navigation */
+.ms-nav {
+  background-color: var(--ms-gray-10);
+  border-right: 1px solid var(--ms-gray-30);
+}
+
+.ms-nav-item {
+  display: flex;
+  align-items: center;
+  padding: var(--ms-spacing-m) var(--ms-spacing-l);
+  color: var(--ms-gray-110);
+  text-decoration: none;
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-14);
+  font-weight: 400;
+  border-left: 3px solid transparent;
+  transition: all 0.1s ease-in-out;
+}
+
+.ms-nav-item:hover {
+  background-color: var(--ms-gray-20);
+  color: var(--ms-gray-120);
+}
+
+.ms-nav-item.active {
+  background-color: var(--ms-blue-lighter);
+  color: var(--ms-blue-primary);
+  border-left-color: var(--ms-blue-primary);
+  font-weight: 600;
+}
+
+.ms-nav-section {
+  margin-bottom: var(--ms-spacing-l);
+}
+
+.ms-nav-section-title {
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-12);
+  font-weight: 600;
+  color: var(--ms-gray-90);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: var(--ms-spacing-s) var(--ms-spacing-l);
+  margin-bottom: var(--ms-spacing-xs);
+}
+
+/* Microsoft Table Styles */
+.ms-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-14);
+}
+
+.ms-table th {
+  background-color: var(--ms-gray-20);
+  color: var(--ms-gray-110);
+  font-weight: 600;
+  padding: var(--ms-spacing-m) var(--ms-spacing-l);
+  text-align: left;
+  border-bottom: 1px solid var(--ms-gray-40);
+}
+
+.ms-table td {
+  padding: var(--ms-spacing-m) var(--ms-spacing-l);
+  border-bottom: 1px solid var(--ms-gray-30);
+  color: var(--ms-gray-110);
+}
+
+.ms-table tr:hover {
+  background-color: var(--ms-gray-10);
+}
+
+/* Microsoft Badge Styles */
+.ms-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ms-spacing-xs) var(--ms-spacing-s);
+  border-radius: var(--ms-border-radius-small);
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-12);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ms-badge-success {
+  background-color: var(--ms-green-light);
+  color: var(--ms-green);
+}
+
+.ms-badge-warning {
+  background-color: var(--ms-orange-light);
+  color: var(--ms-orange);
+}
+
+.ms-badge-error {
+  background-color: var(--ms-red-light);
+  color: var(--ms-red);
+}
+
+.ms-badge-info {
+  background-color: var(--ms-blue-light);
+  color: var(--ms-blue-primary);
+}
+
+.ms-badge-neutral {
+  background-color: var(--ms-gray-20);
+  color: var(--ms-gray-90);
+}
+
+/* Microsoft Header Styles */
+.ms-header {
+  background-color: white;
+  border-bottom: 1px solid var(--ms-gray-30);
+  box-shadow: var(--ms-shadow-depth-4);
+}
+
+.ms-title-1 {
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-32);
+  font-weight: 600;
+  color: var(--ms-gray-120);
+  margin: 0;
+}
+
+.ms-title-2 {
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-24);
+  font-weight: 600;
+  color: var(--ms-gray-120);
+  margin: 0;
+}
+
+.ms-title-3 {
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-20);
+  font-weight: 600;
+  color: var(--ms-gray-120);
+  margin: 0;
+}
+
+.ms-subtitle {
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-14);
+  color: var(--ms-gray-90);
+  margin: 0;
+}
+
+/* Microsoft Layout */
+.ms-layout {
+  font-family: var(--ms-font-family);
+  background-color: var(--ms-gray-20);
+  min-height: 100vh;
+}
+
+.ms-content {
+  background-color: var(--ms-gray-20);
+  padding: var(--ms-spacing-xl);
+}
+
+/* Microsoft Search Box */
+.ms-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ms-search-box input {
+  padding-left: var(--ms-spacing-xxxl);
+}
+
+.ms-search-box .search-icon {
+  position: absolute;
+  left: var(--ms-spacing-m);
+  color: var(--ms-gray-80);
+  z-index: 1;
+}
+
+/* Microsoft Progress Bar */
+.ms-progress {
+  width: 100%;
+  height: 4px;
+  background-color: var(--ms-gray-30);
+  border-radius: var(--ms-border-radius-small);
+  overflow: hidden;
+}
+
+.ms-progress-bar {
+  height: 100%;
+  background-color: var(--ms-blue-primary);
+  transition: width 0.3s ease-in-out;
+}
+
+/* Microsoft Toggle */
+.ms-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.ms-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ms-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--ms-gray-60);
+  transition: 0.2s;
+  border-radius: 12px;
+}
+
+.ms-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+.ms-toggle input:checked + .ms-toggle-slider {
+  background-color: var(--ms-blue-primary);
+}
+
+.ms-toggle input:checked + .ms-toggle-slider:before {
+  transform: translateX(20px);
+}
+
+/* Microsoft Fluent Design Enhancements */
+.ms-tile {
+  background-color: white;
+  border: 1px solid var(--ms-gray-40);
+  border-radius: var(--ms-border-radius-large);
+  box-shadow: var(--ms-shadow-depth-8);
+  transition: all 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.ms-tile:hover {
+  box-shadow: var(--ms-shadow-depth-16);
+  border-color: var(--ms-gray-50);
+  transform: translateY(-2px);
+}
+
+.ms-tile-header {
+  background: linear-gradient(135deg, var(--ms-gray-10) 0%, white 100%);
+  border-bottom: 1px solid var(--ms-gray-30);
+  padding: var(--ms-spacing-l) var(--ms-spacing-xl);
+}
+
+.ms-tile-content {
+  padding: var(--ms-spacing-xl);
+  background-color: white;
+}
+
+/* Enhanced Navigation */
+.ms-nav {
+  background: linear-gradient(180deg, var(--ms-gray-10) 0%, var(--ms-gray-20) 100%);
+  border-right: 2px solid var(--ms-gray-40);
+  box-shadow: var(--ms-shadow-depth-4);
+}
+
+.ms-nav-item {
+  display: flex;
+  align-items: center;
+  padding: var(--ms-spacing-m) var(--ms-spacing-l);
+  color: var(--ms-gray-110);
+  text-decoration: none;
+  font-family: var(--ms-font-family);
+  font-size: var(--ms-font-size-14);
+  font-weight: 400;
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--ms-border-radius-medium) var(--ms-border-radius-medium) 0;
+  margin: 2px var(--ms-spacing-xs) 2px 0;
+  transition: all 0.15s ease-in-out;
+}
+
+.ms-nav-item:hover {
+  background: linear-gradient(90deg, var(--ms-gray-20) 0%, var(--ms-gray-10) 100%);
+  color: var(--ms-gray-120);
+  border-left-color: var(--ms-gray-60);
+  box-shadow: var(--ms-shadow-depth-4);
+}
+
+.ms-nav-item.active {
+  background: linear-gradient(90deg, var(--ms-blue-lighter) 0%, white 100%);
+  color: var(--ms-blue-primary);
+  border-left-color: var(--ms-blue-primary);
+  font-weight: 600;
+  box-shadow: var(--ms-shadow-depth-8);
+}
+
+/* Microsoft Form Elements with Better Definition */
+.ms-form-group {
+  background-color: white;
+  border: 1px solid var(--ms-gray-40);
+  border-radius: var(--ms-border-radius-large);
+  padding: var(--ms-spacing-xl);
+  box-shadow: var(--ms-shadow-depth-4);
+  margin-bottom: var(--ms-spacing-l);
+}
+
+.ms-form-section {
+  background: linear-gradient(135deg, var(--ms-blue-lighter) 0%, white 100%);
+  border: 1px solid var(--ms-blue-light);
+  border-radius: var(--ms-border-radius-large);
+  padding: var(--ms-spacing-xl);
+  box-shadow: var(--ms-shadow-depth-4);
+  margin-bottom: var(--ms-spacing-l);
+}
+
+.ms-form-section-warning {
+  background: linear-gradient(135deg, var(--ms-orange-light) 0%, white 100%);
+  border: 1px solid var(--ms-orange);
+  border-radius: var(--ms-border-radius-large);
+  padding: var(--ms-spacing-xl);
+  box-shadow: var(--ms-shadow-depth-4);
+  margin-bottom: var(--ms-spacing-l);
+}
+
+.ms-form-section-error {
+  background: linear-gradient(135deg, var(--ms-red-light) 0%, white 100%);
+  border: 1px solid var(--ms-red);
+  border-radius: var(--ms-border-radius-large);
+  padding: var(--ms-spacing-xl);
+  box-shadow: var(--ms-shadow-depth-4);
+  margin-bottom: var(--ms-spacing-l);
+}
+
+/* Enhanced Microsoft Header */
+.ms-header {
+  background: linear-gradient(180deg, white 0%, var(--ms-gray-10) 100%);
+  border-bottom: 2px solid var(--ms-gray-40);
+  box-shadow: var(--ms-shadow-depth-8);
+}
+
+/* Microsoft List Items */
+.ms-list-item {
+  background-color: white;
+  border: 1px solid var(--ms-gray-30);
+  border-radius: var(--ms-border-radius-large);
+  margin-bottom: var(--ms-spacing-m);
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+  box-shadow: var(--ms-shadow-depth-4);
+}
+
+.ms-list-item:hover {
+  border-color: var(--ms-gray-50);
+  box-shadow: var(--ms-shadow-depth-8);
+  transform: translateY(-1px);
+}
+
+.ms-list-item-header {
+  background: linear-gradient(135deg, var(--ms-gray-10) 0%, white 100%);
+  border-bottom: 1px solid var(--ms-gray-30);
+  padding: var(--ms-spacing-l);
+}
+
+.ms-list-item-content {
+  padding: var(--ms-spacing-l);
+  background-color: white;
+}
+
+/* Microsoft Section Dividers */
+.ms-section-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--ms-gray-40) 50%, transparent 100%);
+  margin: var(--ms-spacing-xxl) 0;
+  border: none;
+}
+
+/* Enhanced Acrylic Effect for Modern Microsoft Look */
+.ms-acrylic {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--ms-shadow-depth-16);
+}
+
+.ms-mica {
+  background: linear-gradient(135deg,
+    rgba(243, 242, 241, 0.95) 0%,
+    rgba(250, 249, 248, 0.95) 100%);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--ms-gray-30);
+  box-shadow: var(--ms-shadow-depth-8);
+}

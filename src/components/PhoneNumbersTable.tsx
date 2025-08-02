@@ -17,16 +17,8 @@ export const PhoneNumbersTable = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showDuplicateExtensions, setShowDuplicateExtensions] = useState(false);
 
-  // Mock data for phone numbers with extensions and potential duplicates
-  const mockNumbers: PhoneNumber[] = [
-    { id: '1', number: '346-720-0001', status: 'assigned', system: 'Skype', carrier: 'AT&T', assignedTo: 'John Doe', notes: 'Primary line', extension: '00001' },
-    { id: '2', number: '346-720-0002', status: 'available', system: 'TEAMS', carrier: 'LUMEN', assignedTo: null, notes: '', extension: '00002' },
-    { id: '3', number: '346-720-0003', status: 'assigned', system: 'Genesys', carrier: 'AT&T', assignedTo: 'Jane Smith', notes: 'Support desk', extension: '00003' },
-    { id: '4', number: '346-725-0001', status: 'reserved', system: 'Skype', carrier: 'LUMEN', assignedTo: null, notes: 'Reserved for expansion', extension: '00001' },
-    { id: '5', number: '346-725-0002', status: 'assigned', system: 'TEAMS', carrier: 'AT&T', assignedTo: 'Mike Johnson', notes: 'Sales team', extension: '00002' },
-    { id: '6', number: '346-834-0001', status: 'available', system: 'Genesys', carrier: 'LUMEN', assignedTo: null, notes: '', extension: '00001' },
-    { id: '7', number: '346-834-0003', status: 'assigned', system: 'Skype', carrier: 'AT&T', assignedTo: 'Jane Smith', notes: 'Duplicate ext override', extension: '00003' },
-  ];
+  // No mock data - this component should load real data from database
+  const mockNumbers: PhoneNumber[] = [];
 
   // Helper function to normalize phone number for search (remove dashes)
   const normalizePhoneNumber = (number: string) => {
@@ -143,7 +135,7 @@ export const PhoneNumbersTable = () => {
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Tip: Search "00001" for extension, "3467200001" without dashes, or "346-720-0001" with dashes
+              Tip: Search "12345" for extension, "XXXXXXXXXX" without dashes, or "XXX-XXX-XXXX" with dashes
             </p>
           </div>
           
