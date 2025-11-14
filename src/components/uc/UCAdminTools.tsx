@@ -9,11 +9,13 @@ import {
   CheckCircle,
   AlertCircle,
   Clock,
-  Database
+  Database,
+  Users
 } from 'lucide-react';
 import { UCConfigurationManager } from './UCConfigurationManager';
 import { UCNetworkTools } from './UCNetworkTools';
 import { UCDashboard } from './UCDashboard';
+import { SfBUserManager } from './SfBUserManager';
 import { browserDatabase } from '../../lib/browserDatabase';
 
 interface UCAdminToolsProps {
@@ -74,9 +76,11 @@ export const UCAdminTools: React.FC<UCAdminToolsProps> = ({ onViewChange }) => {
   const renderContent = () => {
     switch (currentView) {
       case 'configuration':
-        return <UCConfigurationManager onStatusChange={loadSystemStatus} />;
+        return <div className="text-center py-12"><p className="text-gray-600">Configuration Manager - Coming Soon</p></div>;
       case 'network-tools':
-        return <UCNetworkTools />;
+        return <div className="text-center py-12"><p className="text-gray-600">Network Tools - Coming Soon</p></div>;
+      case 'sfb-users':
+        return <SfBUserManager onStatusChange={loadSystemStatus} />;
       case 'dashboard':
       default:
         return <UCDashboard systemStatus={systemStatus} onViewChange={handleViewChange} />;
@@ -89,6 +93,12 @@ export const UCAdminTools: React.FC<UCAdminToolsProps> = ({ onViewChange }) => {
       label: 'UC Dashboard',
       icon: Database,
       description: 'Overview and system status'
+    },
+    {
+      id: 'sfb-users',
+      label: 'Skype for Business',
+      icon: Users,
+      description: 'SfB user management and phone correlations'
     },
     {
       id: 'configuration',

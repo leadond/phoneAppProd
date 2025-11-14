@@ -10,6 +10,9 @@ const { getDatabaseInstance } = require('../lib/databaseFactory');
 // Import UC Admin Tools routes
 const ucRoutes = require('./uc-routes');
 
+// Import Skype for Business routes
+const sfbRoutes = require('./sfb-routes');
+
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -567,6 +570,9 @@ router.get('/health/database', optionalAuth, (req, res) => {
 
 // Mount UC Admin Tools routes
 router.use('/uc', ucRoutes);
+
+// Mount Skype for Business routes
+router.use('/uc/sfb', sfbRoutes);
 
 // Error handling for API routes
 router.use((error, req, res, next) => {

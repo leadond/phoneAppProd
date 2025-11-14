@@ -153,7 +153,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ onViewChange }) 
                   <p className="text-sm text-gray-500">{stat.title}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {loading ? (
-                      <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+                      <span className="inline-block animate-pulse bg-gray-200 h-8 w-16 rounded"></span>
                     ) : (
                       stat.value
                     )}
