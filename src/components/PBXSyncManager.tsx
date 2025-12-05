@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { browserDatabase } from '../lib/browserDatabase';
+import { dataService } from '../services/dataService';
 
 interface PBXSystem {
   id: string;
@@ -99,55 +99,45 @@ export const PBXSyncManager = () => {
     }
   });
 
-  // Load systems from database on component mount
+  // Load systems from backend on component mount
   useEffect(() => {
     loadSystems();
   }, []);
 
   const loadSystems = async () => {
     try {
-      const configs = await browserDatabase.getAllSystemConfigurations();
-      const pbxSystems = configs
-        .filter(config => config.type === 'pbx_system')
-        .map(config => ({
-          ...JSON.parse(config.config_data),
-          id: config.id
-        } as PBXSystem));
+      const apiSystems = await dataService.getPBXSystems();
+      const pbxSystems: PBXSystem[] = apiSystems.map(system => ({
+        id: system.id,
+        name: system.name,
+        type: system.type as any,
+        endpoint: system.endpoint,
+        authType: 'api_key',
+        credentials: {},
+        connectionSettings: {
+          timeout: 30,
+          retryAttempts: 3,
+          validateSsl: true,
+        },
+        status: system.status as any,
+        lastSync: system.lastSync,
+        numbersManaged: system.numbersManaged,
+        syncEnabled: system.syncEnabled,
+        version: system.version,
+        health: system.health,
+        syncSettings: {
+          dataMapping: {},
+          excludeFields: [],
+          customFilters: '',
+        },
+      }));
       setSystems(pbxSystems);
     } catch (error) {
       console.error('Failed to load PBX systems:', error);
     }
   };
 
-  const [syncOperations, setSyncOperations] = useState<SyncOperation[]>([
-    {
-      id: '1',
-      systemId: '2',
-      systemName: 'Genesys Cloud',
-      type: 'incremental',
-      status: 'running',
-      progress: 67,
-      startTime: '2024-01-28T14:30:00Z',
-      recordsProcessed: 156,
-      recordsTotal: 234,
-      errors: 2,
-      changes: { added: 12, updated: 34, removed: 3 }
-    },
-    {
-      id: '2',
-      systemId: '1',
-      systemName: 'Microsoft Teams',
-      type: 'full',
-      status: 'completed',
-      progress: 100,
-      startTime: '2024-01-28T10:00:00Z',
-      endTime: '2024-01-28T10:30:00Z',
-      recordsProcessed: 456,
-      recordsTotal: 456,
-      errors: 0,
-      changes: { added: 23, updated: 45, removed: 8 }
-    }
-  ]);
+  const [syncOperations, setSyncOperations] = useState<SyncOperation[]>([]);
 
   const [selectedSystem, setSelectedSystem] = useState<string>('');
   const [syncSettings, setSyncSettings] = useState({
@@ -160,48 +150,45 @@ export const PBXSyncManager = () => {
 
   const saveSystem = async (systemData: SystemConfigForm) => {
     try {
-      const systemConfig: PBXSystem = {
-        id: editingSystem?.id || `pbx_${Date.now()}`,
+      const baseSystem = {
         name: systemData.name,
         type: systemData.type as any,
         endpoint: systemData.endpoint,
-        authType: systemData.authType as any,
-        credentials: systemData.credentials,
-        connectionSettings: systemData.connectionSettings,
-        status: 'disconnected',
-        lastSync: new Date().toISOString(),
-        numbersManaged: 0,
-        syncEnabled: false,
-        version: 'Unknown',
-        health: 'warning',
-        syncSettings: {
-          dataMapping: {},
-          excludeFields: [],
-          customFilters: ''
-        }
-      };
+        status: editingSystem?.status ?? 'disconnected',
+        lastSync: editingSystem?.lastSync ?? new Date().toISOString(),
+        numbersManaged: editingSystem?.numbersManaged ?? 0,
+        syncEnabled: editingSystem?.syncEnabled ?? false,
+        version: editingSystem?.version ?? 'Unknown',
+        health: editingSystem?.health ?? 'warning',
+      } as Omit<PBXSystem, 'id' | 'authType' | 'credentials' | 'connectionSettings' | 'syncSettings'>;
 
-      const configData = {
-        type: 'pbx_system',
-        name: systemData.name,
-        enabled: true,
-        config_data: JSON.stringify(systemConfig)
-      };
+      let saved: PBXSystem | null = null;
 
       if (editingSystem) {
-        await browserDatabase.updateSystemConfiguration(editingSystem.id, configData);
+        const updated = await dataService.updatePBXSystem(editingSystem.id, baseSystem as any);
+        saved = updated ? {
+          ...editingSystem,
+          ...baseSystem,
+        } : editingSystem;
       } else {
-        await browserDatabase.insertSystemConfiguration(configData);
+        const created = await dataService.addPBXSystem(baseSystem as any);
+        saved = {
+          ...created,
+          authType: systemData.authType as any,
+          credentials: systemData.credentials,
+          connectionSettings: systemData.connectionSettings,
+          syncSettings: {
+            dataMapping: {},
+            excludeFields: [],
+            customFilters: ''
+          }
+        };
       }
 
-      await loadSystems();
+      if (saved) {
+        await loadSystems();
+      }
       resetForm();
-      
-      await browserDatabase.insertAuditEntry({
-        action: `PBX system ${systemData.name} ${editingSystem ? 'updated' : 'added'}`,
-        user: 'admin',
-        type: 'settings'
-      });
     } catch (error) {
       console.error('Failed to save system:', error);
     }
@@ -209,16 +196,9 @@ export const PBXSyncManager = () => {
 
   const deleteSystem = async (systemId: string) => {
     try {
-      const system = systems.find(s => s.id === systemId);
-      await browserDatabase.deleteSystemConfiguration(systemId);
-      await loadSystems();
-      
-      if (system) {
-        await browserDatabase.insertAuditEntry({
-          action: `PBX system ${system.name} deleted`,
-          user: 'admin',
-          type: 'settings'
-        });
+      const success = await dataService.deletePBXSystem(systemId);
+      if (success) {
+        await loadSystems();
       }
     } catch (error) {
       console.error('Failed to delete system:', error);
@@ -251,12 +231,6 @@ export const PBXSyncManager = () => {
           lastSync: new Date().toISOString()
         } : s
       ));
-
-      await browserDatabase.insertAuditEntry({
-        action: `Connection test for ${system.name}: ${success ? 'SUCCESS' : 'FAILED'}`,
-        user: 'admin',
-        type: 'sync'
-      });
     } catch (error) {
       setSystems(prev => prev.map(s =>
         s.id === systemId ? { ...s, status: 'error' as const, health: 'critical' as const } : s
@@ -363,80 +337,57 @@ export const PBXSyncManager = () => {
     return variants[health] || 'bg-gray-100 text-gray-800';
   };
 
-  const startSync = (systemId: string, type: 'full' | 'incremental') => {
+  const loadSyncRunsForSystem = async (systemId: string) => {
+    try {
+      const runs = await dataService.getPBXSyncRuns(systemId);
+      const mapped: SyncOperation[] = runs.map((run) => {
+        const system = systems.find(s => s.id === String(run.system_id));
+        const total = run.numbers_after ?? 0;
+        return {
+          id: String(run.id),
+          systemId: String(run.system_id),
+          systemName: system?.name || `System ${run.system_id}`,
+          type: (run.type as any) || 'incremental',
+          status: (run.status as any) || 'completed',
+          progress: run.status === 'completed' ? 100 : 0,
+          startTime: run.started_at,
+          endTime: run.finished_at,
+          recordsProcessed: total,
+          recordsTotal: total,
+          errors: run.error ? 1 : 0,
+          changes: {
+            added: run.changes_added ?? 0,
+            updated: run.changes_updated ?? 0,
+            removed: run.changes_removed ?? 0,
+          },
+        };
+      });
+      setSyncOperations(mapped);
+    } catch (error) {
+      console.error('Failed to load PBX sync runs:', error);
+    }
+  };
+
+  const startSync = async (systemId: string, type: 'full' | 'incremental') => {
     const system = systems.find(s => s.id === systemId);
     if (!system) return;
 
-    const newOperation: SyncOperation = {
-      id: Date.now().toString(),
-      systemId,
-      systemName: system.name,
-      type,
-      status: 'running',
-      progress: 0,
-      startTime: new Date().toISOString(),
-      recordsProcessed: 0,
-      recordsTotal: system.numbersManaged,
-      errors: 0,
-      changes: { added: 0, updated: 0, removed: 0 }
-    };
-
-    setSyncOperations([newOperation, ...syncOperations]);
-    
-    // Update system status
-    setSystems(prev => prev.map(s => 
+    // Optimistically mark system as syncing
+    setSystems(prev => prev.map(s =>
       s.id === systemId ? { ...s, status: 'syncing' as const } : s
     ));
 
-    // Simulate sync progress
-    simulateSync(newOperation.id, systemId);
-  };
-
-  const simulateSync = (operationId: string, systemId: string) => {
-    const interval = setInterval(() => {
-      setSyncOperations(prev => {
-        const operation = prev.find(op => op.id === operationId);
-        if (!operation || operation.status !== 'running') {
-          clearInterval(interval);
-          return prev;
-        }
-
-        const newProgress = Math.min(operation.progress + Math.random() * 10, 100);
-        const newProcessed = Math.floor((newProgress / 100) * operation.recordsTotal);
-
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          
-          // Update system status back to connected
-          setSystems(prevSystems => prevSystems.map(s => 
-            s.id === systemId ? { 
-              ...s, 
-              status: 'connected' as const, 
-              lastSync: new Date().toISOString() 
-            } : s
-          ));
-
-          return prev.map(op => 
-            op.id === operationId 
-              ? { 
-                  ...op, 
-                  status: 'completed' as const, 
-                  progress: 100, 
-                  recordsProcessed: operation.recordsTotal,
-                  endTime: new Date().toISOString(),
-                  changes: { added: 5, updated: 12, removed: 2 }
-                }
-              : op
-          );
-        }
-
-        return prev.map(op => 
-          op.id === operationId 
-            ? { ...op, progress: newProgress, recordsProcessed: newProcessed }
-            : op
-        );
-      });
-    }, 1000);
+    try {
+      await dataService.runPBXSync(systemId, type);
+      // Reload systems and sync runs for this system
+      await loadSystems();
+      await loadSyncRunsForSystem(systemId);
+    } catch (error) {
+      console.error('Failed to run PBX sync:', error);
+      setSystems(prev => prev.map(s =>
+        s.id === systemId ? { ...s, status: 'error' as const, health: 'critical' } : s
+      ));
+    }
   };
 
   const toggleSystemSync = (systemId: string) => {

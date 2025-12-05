@@ -50,6 +50,36 @@ export class LocalDatabase {
       } catch (sfbError) {
         console.warn('Skype for Business schema not found, skipping SfB database extensions');
       }
+
+      // Read and execute the Saved Searches schema extensions
+      try {
+        const savedSearchesSchemaPath = join(process.cwd(), 'src', 'lib', 'saved-searches-schema.sql');
+        const savedSearchesSchema = readFileSync(savedSearchesSchemaPath, 'utf8');
+        this.db.exec(savedSearchesSchema);
+        console.log('Saved Searches database schema loaded successfully');
+      } catch (savedSearchesError) {
+        console.warn('Saved Searches schema not found, skipping Saved Searches database extensions');
+      }
+
+      // Read and execute the Tags schema extensions
+      try {
+        const tagsSchemaPath = join(process.cwd(), 'src', 'lib', 'tags-schema.sql');
+        const tagsSchema = readFileSync(tagsSchemaPath, 'utf8');
+        this.db.exec(tagsSchema);
+        console.log('Tags database schema loaded successfully');
+      } catch (tagsError) {
+        console.warn('Tags schema not found, skipping Tags database extensions');
+      }
+
+      // Read and execute the Webhooks schema extensions
+      try {
+        const webhooksSchemaPath = join(process.cwd(), 'src', 'lib', 'webhooks-schema.sql');
+        const webhooksSchema = readFileSync(webhooksSchemaPath, 'utf8');
+        this.db.exec(webhooksSchema);
+        console.log('Webhooks database schema loaded successfully');
+      } catch (webhooksError) {
+        console.warn('Webhooks schema not found, skipping Webhooks database extensions');
+      }
       
       console.log('Local database initialized successfully');
     } catch (error) {
@@ -72,12 +102,32 @@ export class LocalDatabase {
   }
 
   // Phone Numbers operations
-  public getAllPhoneNumbers(): any[] {
-    const stmt = this.db.prepare(`
-      SELECT * FROM phone_numbers 
-      ORDER BY created_at DESC
-    `);
-    return stmt.all();
+  public getAllPhoneNumbers(filters: { status?: string; system?: string; range?: string } = {}): any[] {
+    let sql = 'SELECT * FROM phone_numbers';
+    const params: any[] = [];
+    const whereClauses: string[] = [];
+
+    if (filters.status) {
+      whereClauses.push('status = ?');
+      params.push(filters.status);
+    }
+    if (filters.system) {
+      whereClauses.push('system = ?');
+      params.push(filters.system);
+    }
+    if (filters.range) {
+      whereClauses.push('range_name = ?');
+      params.push(filters.range);
+    }
+
+    if (whereClauses.length > 0) {
+      sql += ` WHERE ${whereClauses.join(' AND ')}`;
+    }
+
+    sql += ' ORDER BY created_at DESC';
+
+    const stmt = this.db.prepare(sql);
+    return stmt.all(...params);
   }
 
   public getPhoneNumberById(id: string): any | null {
@@ -217,6 +267,12 @@ export class LocalDatabase {
 
     transaction(phoneNumbers);
     return { success, failed };
+  }
+
+  public isNumberAvailable(number: string): boolean {
+    const stmt = this.db.prepare('SELECT status FROM phone_numbers WHERE number = ?');
+    const result = stmt.get(number) as any;
+    return result ? result.status === 'available' : false;
   }
 
   // Number Ranges operations

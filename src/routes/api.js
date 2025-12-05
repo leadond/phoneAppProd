@@ -1,4 +1,63 @@
 const express = require('express');
+const { localDatabase } = require('../lib/localDatabase');
+const authMiddleware = require('../middleware/authMiddleware');
+
+const router = express.Router();
+
+router.use(authMiddleware);
+
+// GET /api/numbers - List phone numbers with filtering
+router.get('/numbers', async (req, res) => {
+  try {
+    const { status, system, range } = req.query;
+    const numbers = await localDatabase.getAllPhoneNumbers({ status, system, range });
+    res.json(numbers);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch phone numbers' });
+  }
+});
+
+// GET /api/numbers/:id - Get specific number details
+router.get('/numbers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const number = await localDatabase.getPhoneNumberById(id);
+    if (number) {
+      res.json(number);
+    } else {
+      res.status(404).json({ error: 'Phone number not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch phone number' });
+  }
+});
+
+// GET /api/ranges - List number ranges
+router.get('/ranges', async (req, res) => {
+  try {
+    const ranges = await localDatabase.getAllNumberRanges();
+    res.json(ranges);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch number ranges' });
+  }
+});
+
+// GET /api/availability - Check number availability
+router.get('/availability', async (req, res) => {
+  try {
+    const { number } = req.query;
+    if (!number) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+    const isAvailable = await localDatabase.isNumberAvailable(number);
+    res.json({ isAvailable });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to check number availability' });
+  }
+});
+
+module.exports = router;
+
 const bcrypt = require('bcrypt');
 const router = express.Router();
 

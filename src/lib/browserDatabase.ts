@@ -23,7 +23,11 @@ const TABLES = {
   UC_CONFIG_HISTORY: 'uc_config_history',
   UC_NETWORK_TESTS: 'uc_network_tests',
   UC_SYSTEM_SETTINGS: 'uc_system_settings',
-  UC_CONFIG_TEMPLATES: 'uc_config_templates'
+  UC_CONFIG_TEMPLATES: 'uc_config_templates',
+  SAVED_SEARCHES: 'saved_searches',
+  TAGS: 'tags',
+  PHONE_NUMBER_TAGS: 'phone_number_tags',
+  WEBHOOKS: 'webhooks'
 };
 
 export class BrowserDatabase {
@@ -183,6 +187,32 @@ export class BrowserDatabase {
       const ucTemplatesStore = db.createObjectStore(TABLES.UC_CONFIG_TEMPLATES, { keyPath: 'id' });
       ucTemplatesStore.createIndex('template_name', 'template_name');
       ucTemplatesStore.createIndex('is_default', 'is_default');
+    }
+
+    // Saved Searches store
+    if (!db.objectStoreNames.contains(TABLES.SAVED_SEARCHES)) {
+      const savedSearchesStore = db.createObjectStore(TABLES.SAVED_SEARCHES, { keyPath: 'id' });
+      savedSearchesStore.createIndex('user_id', 'user_id');
+      savedSearchesStore.createIndex('name', 'name');
+    }
+
+    // Tags store
+    if (!db.objectStoreNames.contains(TABLES.TAGS)) {
+      const tagsStore = db.createObjectStore(TABLES.TAGS, { keyPath: 'id' });
+      tagsStore.createIndex('name', 'name', { unique: true });
+    }
+
+    // Phone Number Tags store
+    if (!db.objectStoreNames.contains(TABLES.PHONE_NUMBER_TAGS)) {
+      const phoneNumberTagsStore = db.createObjectStore(TABLES.PHONE_NUMBER_TAGS, { keyPath: ['phone_number_id', 'tag_id'] });
+      phoneNumberTagsStore.createIndex('phone_number_id', 'phone_number_id');
+      phoneNumberTagsStore.createIndex('tag_id', 'tag_id');
+    }
+
+    // Webhooks store
+    if (!db.objectStoreNames.contains(TABLES.WEBHOOKS)) {
+      const webhooksStore = db.createObjectStore(TABLES.WEBHOOKS, { keyPath: 'id' });
+      webhooksStore.createIndex('name', 'name');
     }
   }
 
@@ -352,12 +382,32 @@ export class BrowserDatabase {
     return { success, failed };
   }
 
-  public async count(storeName: string): Promise<number> {
+  public async count(storeName: string, filters: any = {}): Promise<number> {
     const store = await this.getTransaction(storeName);
     return new Promise((resolve, reject) => {
-      const request = store.count();
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      if (Object.keys(filters).length === 0) {
+        const request = store.count();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      } else {
+        const request = store.getAll();
+        request.onsuccess = () => {
+          let allResults = request.result;
+
+          // Apply filters
+          if (filters.status) {
+            allResults = allResults.filter(num => num.status === filters.status);
+          }
+          if (filters.system) {
+            allResults = allResults.filter(num => num.system === filters.system);
+          }
+          if (filters.range) {
+            allResults = allResults.filter(num => num.range_name === filters.range);
+          }
+          resolve(allResults.length);
+        };
+        request.onerror = () => reject(request.error);
+      }
     });
   }
 
@@ -371,18 +421,25 @@ export class BrowserDatabase {
   }
 
   // Specific methods for phone numbers
-  public async getAllPhoneNumbers(offset: number = 0, limit?: number): Promise<any[]> {
-    if (limit === undefined) {
-      // Return all records if no limit specified (backward compatibility)
-      return this.getAll(TABLES.PHONE_NUMBERS);
-    }
-
+  public async getAllPhoneNumbers(offset: number = 0, limit?: number, filters: any = {}): Promise<any[]> {
     const store = await this.getTransaction(TABLES.PHONE_NUMBERS);
     return new Promise((resolve, reject) => {
       const request = store.getAll();
       request.onsuccess = () => {
-        const allResults = request.result;
-        const paginatedResults = allResults.slice(offset, offset + limit);
+        let allResults = request.result;
+
+        // Apply filters
+        if (filters.status) {
+          allResults = allResults.filter(num => num.status === filters.status);
+        }
+        if (filters.system) {
+          allResults = allResults.filter(num => num.system === filters.system);
+        }
+        if (filters.range) {
+          allResults = allResults.filter(num => num.range_name === filters.range);
+        }
+
+        const paginatedResults = limit ? allResults.slice(offset, offset + limit) : allResults;
         resolve(paginatedResults);
       };
       request.onerror = () => reject(request.error);
@@ -428,8 +485,19 @@ export class BrowserDatabase {
   }
 
   // Specific methods for audit log
-  public async getAllAuditEntries(limit: number = 100): Promise<any[]> {
-    const entries = await this.getAll(TABLES.AUDIT_LOG);
+  public async getAllAuditEntries(limit: number = 100, filters: any = {}): Promise<any[]> {
+    let entries = await this.getAll(TABLES.AUDIT_LOG);
+
+    if (filters.user) {
+      entries = entries.filter(entry => entry.user.includes(filters.user));
+    }
+    if (filters.action) {
+      entries = entries.filter(entry => entry.action.includes(filters.action));
+    }
+    if (filters.date) {
+      entries = entries.filter(entry => entry.timestamp.startsWith(filters.date));
+    }
+
     return entries
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, limit);

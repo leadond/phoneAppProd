@@ -12,7 +12,27 @@ A comprehensive phone number range management system that runs completely offlin
 - **Bulk Operations** - Import/export and bulk processing capabilities
 - **Audit Logging** - Complete activity tracking
 - **PBX Integration** - Manage connections to various PBX systems
+- **Scheduled PBX Sync** - Automatically sync with your PBX systems
+- **Read-Only API** - Programmatic access to your data
+- **Advanced Filtering & Saved Searches** - Powerful data exploration tools
+- **Custom Tagging** - Organize your numbers with custom tags
+- **Bulk Editing** - Perform actions on multiple numbers at once
+- **Utilization Dashboard** - Visualize your number usage
+- **Searchable Audit Log** - Easily search and filter the audit log
+- **Webhook Notifications** - Get notified of important events
 - **Analytics Dashboard** - Real-time statistics and insights
+
+## ✨ What's New in Version 2.0
+
+- **Scheduled PBX Sync**: Automatically sync with your PBX systems on a configurable schedule.
+- **Read-Only API**: Access your phone number data programmatically with a secure, token-based API.
+- **Advanced Filtering & Saved Searches**: Create, save, and load complex filter combinations.
+- **Custom Tagging System**: Organize your numbers with custom tags and colors.
+- **Bulk Editing**: Perform bulk actions on multiple numbers at once, including tagging.
+- **Number Utilization Dashboard**: Visualize your phone number usage with interactive charts.
+- **Searchable Audit Log UI**: A dedicated interface for searching and filtering the audit log.
+- **Temporary Reservations with Expiry**: Reservations are now automatically released after a configurable period.
+- **Webhook Notifications**: Get notified in Slack or Teams about important events.
 
 ## 📋 Prerequisites
 

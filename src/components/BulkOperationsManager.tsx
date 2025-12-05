@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { dataService, BulkOperation, PhoneNumber, parseCSV, generateCSV } from '../services/dataService';
+import { apiService } from '../services/api';
 
 export const BulkOperationsManager = () => {
   const [operations, setOperations] = useState<BulkOperation[]>([]);
@@ -107,8 +108,8 @@ export const BulkOperationsManager = () => {
       setOperations([createdOperation, ...operations]);
       setIsImportDialogOpen(false);
 
-      // Process the actual CSV file
-      await processCSVImport(selectedFile, createdOperation.id);
+      // Process the actual file via FastAPI backend
+      await processFileImport(selectedFile, createdOperation.id);
       setSelectedFile(null);
     } catch (error) {
       console.error('Import initiation failed:', error);
@@ -118,65 +119,34 @@ export const BulkOperationsManager = () => {
     }
   };
 
-  const processCSVImport = async (file: File, operationId: string) => {
+  const processFileImport = async (file: File, operationId: string) => {
     try {
-      const text = await file.text();
-      const csvData = parseCSV(text);
-      
-      // Update operation with total items
-      const totalItems = csvData.length;
+      // Set operation to running; totalItems is unknown until backend responds,
+      // so we will approximate using success_count + error_count.
       updateOperation(operationId, {
         status: 'running',
-        totalItems,
-        progress: 0
+        progress: 0,
       });
 
-      // Convert CSV data to PhoneNumber objects
-      const phoneNumbers: Omit<PhoneNumber, 'id'>[] = csvData.map((row, index) => ({
-        number: row.number || `XXX-XXX-${String(index).padStart(4, '0')}`,
-        status: (row.status as any) || 'available',
-        system: row.system || 'Unassigned',
-        carrier: row.carrier || importSettings.defaultCarrier,
-        assignedTo: row.assignedTo || null,
-        notes: row.notes || '',
-        extension: row.extension || String(index + 1).padStart(5, '0'),
-        department: row.department || importSettings.defaultDepartment,
-        location: row.location || 'Unknown',
-        dateAssigned: row.assignedTo ? new Date().toISOString().split('T')[0] : null,
-        dateAvailable: !row.assignedTo ? new Date().toISOString().split('T')[0] : null,
-        lastUsed: row.lastUsed || null,
-        agingDays: 0,
-        numberType: (row.numberType as any) || 'local',
-        range: row.range || 'Unknown',
-        project: row.project || null,
-        reservedUntil: row.reservedUntil || null,
-        usage: {
-          inbound: parseInt(row.inbound) || 0,
-          outbound: parseInt(row.outbound) || 0,
-          lastActivity: row.lastActivity || null
-        }
-      }));
+      const result = await apiService.importSkypeFile(file);
+      const totalItems = result.success_count + result.error_count;
 
-      // Import the numbers
-      const results = await dataService.bulkImportPhoneNumbers(phoneNumbers);
-      
-      // Update operation as completed
       updateOperation(operationId, {
         status: 'completed',
         progress: 100,
-        processedItems: results.success,
-        failedItems: results.failed,
+        totalItems,
+        processedItems: result.success_count,
+        failedItems: result.error_count,
         endTime: new Date().toISOString(),
-        results
+        results: result,
       });
-
     } catch (error) {
-      console.error('Import failed:', error);
+      console.error('Import failed via FastAPI:', error);
       updateOperation(operationId, {
         status: 'failed',
         progress: 0,
         endTime: new Date().toISOString(),
-        results: { error: String(error) }
+        results: { error: String(error) },
       });
     }
   };

@@ -191,12 +191,17 @@ if (NODE_ENV === 'production') {
   // Development mode - proxy to Vite dev server
   console.log('Development mode: Proxying to Vite dev server...');
   
-  app.use('*', createProxyMiddleware({
-    target: 'http://localhost:5173',
-    changeOrigin: true,
-    ws: true, // Enable WebSocket proxying for HMR
-    logLevel: 'silent'
-  }));
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/health')) {
+      return next();
+    }
+    createProxyMiddleware({
+      target: 'http://localhost:5173',
+      changeOrigin: true,
+      ws: true, // Enable WebSocket proxying for HMR
+      logLevel: 'silent'
+    })(req, res, next);
+  });
 }
 
 // Global error handling middleware
@@ -260,6 +265,22 @@ const server = app.listen(PORT, HOST, () => {
   
   if (NODE_ENV === 'production') {
     console.log(`📁 Serving static files from: ${path.join(__dirname, 'dist')}`);
+    // Initialize the sync service in production
+    try {
+      const { syncService } = require('./src/services/syncService');
+      syncService.runSync(); // Optional: run a sync on startup
+      console.log('📅 Scheduled PBX sync service initialized.');
+    } catch (error) {
+      console.error('Failed to initialize sync service:', error);
+    }
+    // Initialize the reservation service in production
+    try {
+      const { reservationService } = require('./src/services/reservationService');
+      reservationService.releaseExpiredReservations(); // Optional: run on startup
+      console.log('📅 Scheduled reservation expiry service initialized.');
+    } catch (error) {
+      console.error('Failed to initialize reservation service:', error);
+    }
   }
 });
 

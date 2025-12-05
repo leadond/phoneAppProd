@@ -105,6 +105,9 @@ src/
 │   ├── ldapAuth.ts         # LDAP/AD authentication
 │   ├── enhancedAuth.ts     # Unified auth layer
 │   └── *-schema.sql        # Database schemas
+│   ├── saved-searches-schema.sql
+│   ├── tags-schema.sql
+│   └── webhooks-schema.sql
 ├── pages/                  # Page components
 ├── routes/                 # Client-side routing
 ├── server/                 # Server-side utilities
@@ -157,6 +160,20 @@ Configuration components:
 - `PBXSyncManager.tsx` - General PBX sync management
 - `SkypeForBusinessManager.tsx` - SfB-specific operations
 - `uc/` components - Unified Communications tools
+
+### New Components
+
+- **`SyncManager.tsx`**: Manages the scheduled PBX sync.
+- **`ApiTokenManager.tsx`**: Manages API tokens for the read-only API.
+- **`AdvancedFilter.tsx`**: A reusable component for advanced filtering.
+- **`SavedSearches.tsx`**: A component for managing saved searches.
+- **`TagManager.tsx`**: A component for managing tags.
+- **`BulkEditToolbar.tsx`**: A toolbar for performing bulk actions.
+- **`UtilizationDashboard.tsx`**: A dashboard for visualizing number utilization.
+- **`AuditLogViewer.tsx`**: A component for viewing and searching the audit log.
+- **`WebhookManager.tsx`**: A component for managing webhooks.
+- **`SettingsLayout.tsx`**: A layout component for the settings pages.
+- **`DashboardLayout.tsx`**: A layout component for the dashboard pages.
 
 ## Development Guidelines
 
@@ -360,6 +377,14 @@ Major components follow these patterns:
    - Real-time data updates
    - Recharts for visualizations
    - Responsive layouts
+
+4. **Layout Components** (e.g., `SettingsLayout`, `DashboardLayout`)
+   - Provide a consistent layout for a section of the application.
+   - Use `Outlet` from `react-router-dom` to render child routes.
+
+5. **Toolbar Components** (e.g., `BulkEditToolbar`)
+   - Appear contextually based on user actions.
+   - Provide a set of actions that can be performed on the selected items.
 
 ## Code Style
 

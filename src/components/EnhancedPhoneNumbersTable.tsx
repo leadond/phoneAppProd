@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { dataService, PhoneNumber } from '../services/dataService';
 import { PhoneNumberAssignmentDialog } from './PhoneNumberAssignmentDialog';
+import BulkEditToolbar from './BulkEditToolbar';
+import { toast } from 'sonner';
 
-export const EnhancedPhoneNumbersTable = () => {
+export const EnhancedPhoneNumbersTable = ({ filters }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [systemFilter, setSystemFilter] = useState('all');
@@ -40,12 +42,12 @@ export const EnhancedPhoneNumbersTable = () => {
       setError(null);
       
       // Get total count first
-      const totalCount = await dataService.getPhoneNumbersCount();
+      const totalCount = await dataService.getPhoneNumbersCount(filters);
       setTotalCount(totalCount);
       
       // Load first batch (1000 numbers or all if less than 1000)
       const initialBatchSize = Math.min(INITIAL_LOAD_SIZE, totalCount);
-      const initialNumbers = await dataService.getPhoneNumbers(0, initialBatchSize);
+      const initialNumbers = await dataService.getPhoneNumbers(0, initialBatchSize, filters);
       setPhoneNumbers(initialNumbers);
       setLoadedCount(initialNumbers.length);
       
@@ -108,7 +110,7 @@ export const EnhancedPhoneNumbersTable = () => {
 
   useEffect(() => {
     loadInitialPhoneNumbers();
-  }, []);
+  }, [filters]);
 
   // Advanced search functionality
   const filteredNumbers = useMemo(() => {
@@ -211,8 +213,8 @@ export const EnhancedPhoneNumbersTable = () => {
       setAssignmentDialogOpen(true);
     } else if (action === 'release') {
       handleBulkRelease();
-    } else if (action === 'reserve') {
-      handleBulkReserve();
+    } else if (action === 'tag') {
+      handleBulkTag();
     }
   };
 
@@ -262,6 +264,33 @@ export const EnhancedPhoneNumbersTable = () => {
     } catch (error) {
       console.error('Failed to reserve numbers:', error);
       alert('Failed to reserve numbers. Please try again.');
+    }
+  };
+
+  const handleBulkTag = async () => {
+    const tagName = prompt('Enter tag to add:');
+    if (!tagName) return;
+
+    try {
+      // For simplicity, we'll assume the tag already exists.
+      // A more robust implementation would allow creating new tags here.
+      const tags = await dataService.getTags();
+      const tag = tags.find(t => t.name === tagName);
+
+      if (!tag) {
+        toast.error(`Tag "${tagName}" not found. Please create it first in the Tag Management settings.`);
+        return;
+      }
+
+      for (const numberId of selectedNumbers) {
+        await dataService.addTagToPhoneNumber(numberId, tag.id);
+      }
+
+      toast.success(`Tag "${tagName}" added to ${selectedNumbers.length} numbers.`);
+      setSelectedNumbers([]);
+    } catch (error) {
+      console.error('Failed to add tag to numbers:', error);
+      alert('Failed to add tag. Please try again.');
     }
   };
 
@@ -509,29 +538,10 @@ export const EnhancedPhoneNumbersTable = () => {
 
       {/* Bulk Actions */}
       {selectedNumbers.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">
-                {selectedNumbers.length} numbers selected
-              </span>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('assign')}>
-                  <Users className="w-4 h-4 mr-1" />
-                  Bulk Assign
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('release')}>
-                  <Unlock className="w-4 h-4 mr-1" />
-                  Release
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('reserve')}>
-                  <Lock className="w-4 h-4 mr-1" />
-                  Reserve
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <BulkEditToolbar
+          selectedCount={selectedNumbers.length}
+          onBulkAction={handleBulkAction}
+        />
       )}
 
       {/* Enhanced Table */}

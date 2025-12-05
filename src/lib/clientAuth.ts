@@ -1,4 +1,5 @@
 import { enhancedAuth, AuthResult, User } from './enhancedAuth';
+import { apiService } from '../services/api';
 
 // Client-side authentication service for React frontend
 export interface ClientAuthState {
@@ -144,8 +145,15 @@ class ClientAuthService {
       });
 
       if (response.success && response.user && response.token) {
-        // Store token
+        // Store token for Node/Express backend
         localStorage.setItem('auth_token', response.token);
+
+        // Also try to log into FastAPI backend so apiService has a token
+        try {
+          await apiService.login(credentials.username, credentials.password);
+        } catch (e) {
+          console.error('FastAPI backend login failed (bp_auth_token not set):', e);
+        }
         
         // Update state
         this.updateState({
@@ -204,6 +212,13 @@ class ClientAuthService {
     } catch (error) {
       console.error('Logout API call failed:', error);
       // Continue with logout even if API call fails
+    }
+
+    // Also try to logout from FastAPI backend
+    try {
+      await apiService.logout();
+    } catch (e) {
+      console.error('FastAPI backend logout failed:', e);
     }
 
     // Clear local state

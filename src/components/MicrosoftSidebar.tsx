@@ -12,7 +12,8 @@ import {
   Settings,
   Phone,
   MessageSquare,
-  Server
+  Server,
+  PieChart
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 
@@ -26,8 +27,9 @@ export const MicrosoftSidebar: React.FC<SidebarProps> = ({ currentView, onViewCh
     {
       title: 'Overview',
       items: [
-        { id: 'dashboard', label: 'Home', icon: Home },
+        { id: 'dashboard', label: 'Dashboard', icon: Home },
         { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+        { id: 'utilization', label: 'Utilization', icon: PieChart },
       ]
     },
     {
@@ -50,6 +52,8 @@ export const MicrosoftSidebar: React.FC<SidebarProps> = ({ currentView, onViewCh
       items: [
         { id: 'sync', label: 'System Sync', icon: Database },
         { id: 'skype', label: 'Skype for Business', icon: MessageSquare },
+        { id: 'webhooks', label: 'Webhooks', icon: RefreshCw },
+        { id: 'webhook-log', label: 'Webhook Log', icon: FileText },
         { id: 'uc-admin', label: 'UC Admin Tools', icon: Server },
         { id: 'settings', label: 'Settings', icon: Settings },
       ]

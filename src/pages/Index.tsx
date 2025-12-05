@@ -14,12 +14,18 @@ import { DashboardStats } from '../components/DashboardStats';
 import { SkypeForBusinessManager } from '../components/SkypeForBusinessManager';
 import { DatabaseDiagnostics } from '../components/DatabaseDiagnostics';
 import { UCAdminTools } from '../components/uc/UCAdminTools';
+import AdvancedFilter from '../components/AdvancedFilter';
+import UtilizationDashboard from '../components/UtilizationDashboard';
+import AuditLogViewer from '../components/AuditLogViewer';
+import WebhookManager from '../components/WebhookManager';
+import WebhookDeliveryViewer from '../components/WebhookDeliveryViewer';
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentView, setCurrentView] = useState('dashboard');
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({});
 
   // System Settings Form State
   const [settings, setSettings] = useState({
@@ -162,7 +168,14 @@ const Index = () => {
       case 'dashboard':
         return <DashboardStats onViewChange={setCurrentView} />;
       case 'numbers':
-        return <EnhancedPhoneNumbersTable />;
+        return (
+          <>
+            <AdvancedFilter onFilterChange={setFilters} />
+            <div className="mt-4">
+              <EnhancedPhoneNumbersTable filters={filters} />
+            </div>
+          </>
+        );
       case 'ranges':
         return <NumberRangeManager />;
       case 'analytics':
@@ -178,47 +191,13 @@ const Index = () => {
       case 'uc-admin':
         return <UCAdminTools onViewChange={setCurrentView} />;
       case 'audit':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Audit Log</h1>
-              <p className="text-gray-500 mt-1">Track all system activities and changes</p>
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Activities</h3>
-              </div>
-              <div className="divide-y divide-gray-200">
-                {[{
-                  action: 'System initialized successfully',
-                  user: 'system',
-                  time: 'Ready for data upload',
-                  type: 'settings'
-                }].map((activity, index) => (
-                  <div key={index} className="px-6 py-4 flex justify-between items-center">
-                    <div>
-                      <p className="text-gray-900">{activity.action}</p>
-                      <p className="text-sm text-gray-500">by {activity.user}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                        activity.type === 'assignment' ? 'bg-green-100 text-green-800' :
-                        activity.type === 'import' ? 'bg-blue-100 text-blue-800' :
-                        activity.type === 'release' ? 'bg-yellow-100 text-yellow-800' :
-                        activity.type === 'settings' ? 'bg-purple-100 text-purple-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {activity.type}
-                      </span>
-                      <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
+        return <AuditLogViewer />;
+      case 'webhooks':
+        return <WebhookManager />;
+      case 'webhook-log':
+        return <WebhookDeliveryViewer />;
+      case 'utilization':
+        return <UtilizationDashboard />;
       case 'settings':
         return (
           <div className="space-y-6">
