@@ -2,7 +2,7 @@
  * API Service for Business Phone Number Management (FastAPI backend)
  */
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = '/api';
 
 // Types
 export interface LoginRequest {

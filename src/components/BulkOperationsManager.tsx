@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { dataService, BulkOperation, PhoneNumber, parseCSV, generateCSV } from '../services/dataService';
+import { uploadFile } from '../lib/api';
 import { apiService } from '../services/api';
 
 export const BulkOperationsManager = () => {
@@ -108,7 +109,6 @@ export const BulkOperationsManager = () => {
       setOperations([createdOperation, ...operations]);
       setIsImportDialogOpen(false);
 
-      // Process the actual file via FastAPI backend
       await processFileImport(selectedFile, createdOperation.id);
       setSelectedFile(null);
     } catch (error) {
@@ -128,7 +128,7 @@ export const BulkOperationsManager = () => {
         progress: 0,
       });
 
-      const result = await apiService.importSkypeFile(file);
+      const result = await uploadFile(file);
       const totalItems = result.success_count + result.error_count;
 
       updateOperation(operationId, {

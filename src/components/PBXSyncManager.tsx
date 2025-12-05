@@ -113,7 +113,7 @@ export const PBXSyncManager = () => {
         type: system.type as any,
         endpoint: system.endpoint,
         authType: 'api_key',
-        credentials: {},
+        credentials: system.credentials,
         connectionSettings: {
           timeout: 30,
           retryAttempts: 3,
